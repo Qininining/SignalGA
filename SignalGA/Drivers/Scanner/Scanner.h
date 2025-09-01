@@ -14,18 +14,10 @@ public:
     bool connect();
     bool disConnect();
 
-    bool gotoPositionAbsolute(signed int position);
-    bool gotoPositionRelative(signed int diff);
-
-    bool getPosition(int &position);
-
     bool scanMoveAbsolute(unsigned int target, unsigned int scanStep = 1000, unsigned int scanDelay = 1000);
     bool scanMoveRelative(int diff, unsigned int scanStep = 1, unsigned int scanDelay = 100);
 
     bool getVoltage(unsigned int &voltage);
-
-    bool getMotionInfo();
-    bool getsta(SCAN_STATUS &sta);
 
     bool findSystem();
 
