@@ -20,6 +20,8 @@ ForceSensor::ForceSensor(const QString &portName, double sensitivityCH1, double 
     channelData_[1].forceReferceFlagSet = false;
     channelData_[1].lastProcessedRawForce = 0;
     channelData_[1].currentRawForce = 0;
+    // 启动高分辨率计时器
+    highResTimer_.start();
 }
 
 // 析构函数实现
@@ -102,7 +104,9 @@ bool ForceSensor::parseAndProcessDataPacket(const QByteArray &packet)
                     double absForce, relForce;
                     getForce(1, false, absForce); // 获取绝对力值
                     getForce(1, true, relForce);  // 获取相对力值
-                    emit forceDataReady(1, absForce, relForce);
+                    // 单通道：为该包生成微秒时间戳
+                    const long long tsUs = highResTimer_.isValid() ? highResTimer_.nsecsElapsed() / 1000 : 0;
+                    emit forceDataReady(1, absForce, relForce, tsUs);
                     success = true;
                 } else if (channelID1 == ForceSensorConstants::CHANNEL_ID_2_CHAR) {
                     processRawForceData(rawForceCH1, 1); // 处理通道 2 的数据
@@ -110,7 +114,9 @@ bool ForceSensor::parseAndProcessDataPacket(const QByteArray &packet)
                     double absForce, relForce;
                     getForce(2, false, absForce); // 获取绝对力值
                     getForce(2, true, relForce);  // 获取相对力值
-                    emit forceDataReady(2, absForce, relForce);
+                    // 单通道：为该包生成微秒时间戳
+                    const long long tsUs = highResTimer_.isValid() ? highResTimer_.nsecsElapsed() / 1000 : 0;
+                    emit forceDataReady(2, absForce, relForce, tsUs);
                     success = true;
                 } else {
                     qDebug() << "错误: 单通道数据包中未知通道ID:" << channelID1;
@@ -143,31 +149,35 @@ bool ForceSensor::parseAndProcessDataPacket(const QByteArray &packet)
                     processRawForceData(rawForceCH1, 0); // 处理通道 1
                     processRawForceData(rawForceCH2, 1); // 处理通道 2
                     success = true;
+                    // 为双通道包复用同一微秒时间戳
+                    const long long tsUs = highResTimer_.isValid() ? highResTimer_.nsecsElapsed() / 1000 : 0;
                     // 发射两个通道的信号
                     double absForce1, relForce1;
                     getForce(1, false, absForce1);
                     getForce(1, true, relForce1);
-                    emit forceDataReady(1, absForce1, relForce1);
+                    emit forceDataReady(1, absForce1, relForce1, tsUs);
 
                     double absForce2, relForce2;
                     getForce(2, false, absForce2);
                     getForce(2, true, relForce2);
-                    emit forceDataReady(2, absForce2, relForce2);
+                    emit forceDataReady(2, absForce2, relForce2, tsUs);
 
                 } else if (channelID1 == ForceSensorConstants::CHANNEL_ID_2_CHAR && channelID2 == ForceSensorConstants::CHANNEL_ID_1_CHAR) {
                     processRawForceData(rawForceCH2, 0); // 处理通道 1 (因为数据包中顺序反了)
                     processRawForceData(rawForceCH1, 1); // 处理通道 2
                     success = true;
+                    // 为双通道包复用同一微秒时间戳
+                    const long long tsUs = highResTimer_.isValid() ? highResTimer_.nsecsElapsed() / 1000 : 0;
                     // 发射两个通道的信号 (注意顺序)
                     double absForce1, relForce1;
                     getForce(1, false, absForce1);
                     getForce(1, true, relForce1);
-                    emit forceDataReady(1, absForce1, relForce1);
+                    emit forceDataReady(1, absForce1, relForce1, tsUs);
 
                     double absForce2, relForce2;
                     getForce(2, false, absForce2);
                     getForce(2, true, relForce2);
-                    emit forceDataReady(2, absForce2, relForce2);
+                    emit forceDataReady(2, absForce2, relForce2, tsUs);
                 } else {
                     qDebug() << "错误: 双通道数据包中未知或不匹配的通道ID:" << channelID1 << channelID2;
                 }

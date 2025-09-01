@@ -5,6 +5,7 @@
 #include <QByteArray>
 #include <QString>
 #include <QDebug>
+#include <QElapsedTimer>
 
 // 串口通信协议相关的常量，用于提高代码可读性和可维护性
 namespace ForceSensorConstants {
@@ -66,7 +67,8 @@ signals:
     // channel: 哪个通道的力值。
     // absoluteForce: 绝对力值。
     // relativeForce: 相对于零点的力值。
-    void forceDataReady(int channel, double absoluteForce, double relativeForce);
+    // timestampUs: 高分辨率单调时钟（QElapsedTimer）微秒时间戳，适合 5kHz 以上速率。
+    void forceDataReady(int channel, double absoluteForce, double relativeForce, long long timestampUs);
 
 private slots:
     // 重写 SerialCommon 的 readData 槽函数。当串口有新数据可读时，此槽函数会被触发。
@@ -86,6 +88,7 @@ private:
 
     QString portName_;           // 存储串口的名称
     QByteArray buffer_;          // 内部缓冲区，用于累积从串口接收到的不完整数据包
+    QElapsedTimer highResTimer_; // 高分辨率单调计时器，用于生成微秒级时间戳
 
     // 私有辅助函数：处理单个通道的原始力数据。
     // rawForce: 从传感器读取到的原始力值。
