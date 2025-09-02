@@ -10,13 +10,23 @@ CONFIG += c++17
 
 # UI
 SOURCES += \
-    main.cpp \
+    src/main.cpp \
     UI/mainwindow/mainwindow.cpp
 HEADERS += \
     UI/mainwindow/mainwindow.h
 FORMS += \
     UI/mainwindow/mainwindow.ui
 INCLUDEPATH += ./UI/mainwindow
+
+# Data/AcquisitionTask
+INCLUDEPATH += Data/AcquisitionTask
+SOURCES += Data/AcquisitionTask/TaskThreadManager.cpp
+HEADERS += Data/AcquisitionTask/TaskThreadManager.h
+
+# Data/DataSaver
+INCLUDEPATH += Data/DataSaver
+SOURCES += Data/DataSaver/DataSaver.cpp
+HEADERS += Data/DataSaver/DataSaver.h
 
 # Drivers/Scanner
 INCLUDEPATH += Drivers/Scanner
