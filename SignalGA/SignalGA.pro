@@ -19,10 +19,10 @@ FORMS += \
 INCLUDEPATH += ./UI/mainwindow
 
 # Data/AcquisitionTask
+DEFINES += "DataBaseDIR=$$PWD/Data/output/"
 INCLUDEPATH += Data/AcquisitionTask
 SOURCES += Data/AcquisitionTask/TaskThreadManager.cpp
 HEADERS += Data/AcquisitionTask/TaskThreadManager.h
-
 # Data/DataSaver
 INCLUDEPATH += Data/DataSaver
 SOURCES += Data/DataSaver/DataSaver.cpp
